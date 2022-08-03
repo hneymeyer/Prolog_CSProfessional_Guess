@@ -1,0 +1,120 @@
+/* guess.pl 
+ *  
+ * Animal guessing game.
+ *
+ * Author:
+ * Date:
+ *
+ * start with ?- go.     
+*/
+
+
+go :- nl,
+      write('Think of a CS professional and I will attempt to guess who it is. You may not enter the name of the professional.'),
+      nl,
+      write('Please answer yes or no to the following questions:'),
+      nl, nl,
+      guess(Cspro),
+      write('The professional is  '),
+      write(Cspro),
+      nl,
+      undo.
+
+/* hypotheses to be tested */
+guess(babbage)   :- babbage, !.
+guess(turing) :- turing, !.
+guess(lovelace)   :- lovelace, !.
+guess(aeasley)	:- aeasley, !.
+guess(hopper)	:- hopper, !.
+guess(minsky)	:- minsky, !.
+guess(knuth)	:- knuth, !.
+guess(allen)	:- allen, !.
+guess(brooks)	:- brooks, !.
+guess(mccarthy)	:- mccarthy, !.
+guess(unknown).             /* no diagnosis */
+
+/* Scientist identification rules */
+babbage :- english, 
+         man, 
+         fatherofcomputer,
+         verify(is_from_england),
+         verify(is_man),
+    	 verify(invented_first_mech_comp),
+    	 verify(invented_analytical_engine).
+turing :- english, 
+           man,
+           fatherofai,
+    	   verify(is_from_england),
+           verify(is_man),
+           verify(invented_turing_machine).
+lovelace :- english, 
+         woman,
+         invented,
+         verify(is_from_england),
+         verify(is_woman),
+         verify(first_programmer_worked_with_babbage).
+aeasley	:- woman,
+    	   humancomputer,
+    	   verify(is_woman),
+    	   verify(worked_for_nasa_as_human_computer).
+hopper	:- woman,
+    	   servedas,
+    	   verify(is_woman),
+           verify(was_us_navy_admiral).
+minsky	:- founder,
+           verify(co_founded_Massachusetts_Institute_of_technology_AI_lab).
+knuth	:- author,
+    	   verify(wrote_art_of_comp_programming_and_born_in_milwaukee).
+allen	:- woman,
+    	   ibm,
+           verify(is_woman),
+           verify(first_woman_IBM_fellow).
+brooks	:- author2,
+           verify(wrote_mythical_man_month).
+mccarthy	:- foundingfather,
+    		   verify(known_As_founding_father_of_CS).
+
+/* classification rules */
+english    :- verify(is_from_england), !.
+man    :- verify(is_man), !.
+woman  :- verify(is_woman).
+fatherofcomputer  :- verify(invented_first_mech_comp), verify(invented_analytical_engine), !.
+fatherofai :- verify(invented_turing_machine).
+invented  :- woman, verify(first_programmer_worked_with_babbage), !.
+humancomputer	:- verify(worked_for_nasa_as_human_computer).
+servedas	:- verify(was_us_navy_admiral).
+founder		:- verify(co_founded_Massachusetts_Institute_of_technology_AI_lab).
+author	:- verify(wrote_art_of_comp_programming_and_born_in_milwaukee).
+ibm	:-	verify(first_woman_IBM_fellow).
+author2	:- verify(wrote_mythical_man_month).
+foundingfather	:- verify(known_As_founding_father_of_CS).
+
+
+/* how to ask questions */
+ask(Question) :-
+    write('Is the cs professional '),
+    write(Question),
+    write('? '),
+    read(Response),
+    nl,
+    ( (Response == yes ; Response == y)
+      ->
+      assert(yes(Question)) ;
+       assert(no(Question)), fail).
+
+:- dynamic yes/1,no/1.
+
+/* How to verify something */
+verify(S) :-
+   (yes(S) 
+    ->
+    true ;
+    (no(S)
+     ->
+     fail ;
+     ask(S))).
+
+/* undo all yes/no assertions */
+undo :- retract(yes(_)),fail. 
+undo :- retract(no(_)),fail.
+undo.
